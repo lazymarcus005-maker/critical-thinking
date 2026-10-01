@@ -2,6 +2,8 @@
 
 > รีวิววันที่ 1 ตุลาคม 2026 · ขอบเขต: `90-day-critical-management-program.md` (610 บรรทัด) และเว็บไซต์ `90day-site/` (เนื้อหาทั้ง 13 สัปดาห์ใน `js/content-1/2/3.js` + `pages.js`)
 
+*(ตัวโปรแกรมฉบับเต็มอยู่ที่ [90-day-critical-management-program.md](90-day-critical-management-program.md) ในโฟลเดอร์ docs/ เดียวกันนี้)*
+
 ---
 
 ## คำตัดสินโดยรวม
