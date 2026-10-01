@@ -9,7 +9,8 @@
 |---|---|
 | [90day-site/](90day-site/) | เว็บแอปตัวโปรแกรม (HTML/CSS/JS ล้วน ไม่ต้อง build — เปิดจากไฟล์ตรง ๆ ได้) |
 | [docs/90-day-critical-management-program.md](docs/90-day-critical-management-program.md) | ตัวโปรแกรมฉบับเต็ม: 13 สัปดาห์ · เทมเพลต T1–T12 · เคสฝึก W1–W13 · แบบประเมิน A1–A4 พร้อม rubric · แผน course/budget · แผนกันพัง |
-| [docs/REVIEW-AND-RECOMMENDATIONS.md](docs/REVIEW-AND-RECOMMENDATIONS.md) | รีวิวเนื้อหา + จุดอ้างอิงหลักวิชาการทั้ง 13 สัปดาห์ + คำแนะนำการเติมเนื้อหาส่วนที่ขาด (hidden agenda / framing / stakeholder analysis) |
+| [docs/REVIEW-AND-RECOMMENDATIONS.md](docs/REVIEW-AND-RECOMMENDATIONS.md) | รีวิวเนื้อหา + จุดอ้างอิงหลักวิชาการทั้ง 13 สัปดาห์ + คำแนะนำการเติมเนื้อหาส่วนที่ขาด (hidden agenda / framing / stakeholder analysis) + เคสกลางคู่ทีละบท (หัวข้อ 6) + ทฤษฎีเชิงลึก/diagram/ตัวอย่างเหตุการณ์จริง (หัวข้อ 7) |
+| [docs/improvement-handoff.md](docs/improvement-handoff.md) | สรุปการปรับปรุงทั้งหมด + งานที่รอ implement + กติกาการแก้ไขต่อ (handoff สำหรับคน/agent ถัดไป) |
 
 ## เปิดเว็บแอปใช้งาน
 
