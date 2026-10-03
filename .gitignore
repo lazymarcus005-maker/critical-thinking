@@ -1,0 +1,7 @@
+# runtime data (SQLite volume) — สำรองด้วยตัวเอง ห้ามเข้า repo
+data/
+server/data/
+node_modules/
+npm-debug.log*
+*.log
+.DS_Store

@@ -65,6 +65,7 @@ function CALL(title, body, kind) {
   return '<div class="call call-' + kind + '"><div class="call-t">' + esc(title) + '</div><div class="call-b">' + body + '</div></div>';
 }
 function NOTE(t) { return '<p class="hint">' + t + '</p>'; }
+function PRE(text) { return '<pre class="tpl">' + esc(text) + '</pre>'; }
 
 /* ---------- interactive components ---------- */
 function FIELD(id, label, ph, rows) {
@@ -160,8 +161,29 @@ function renderWeek(w, forScan) {
       cbody += '<p class="case-q"><b>คำถามบังคับ:</b></p><ul>' + w.case.q.map(function(x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
     }
     h += CALL('Case ของสัปดาห์ — ' + w.case.title, cbody, 'case');
+    // เคสเวอร์ชันกลาง (เสริม ไม่แทนที่) — จาก content-neutral.js
+    if (typeof window.NEUTRAL === 'object' && window.NEUTRAL && window.NEUTRAL[w.n]) {
+      var nc = window.NEUTRAL[w.n];
+      var nbody = '<p>' + esc(nc.text) + '</p>';
+      if (nc.q && nc.q.length) {
+        nbody += '<p class="case-q"><b>คำถามบังคับ:</b></p><ul>' + nc.q.map(function(x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
+      }
+      h += '<details class="call call-tip details-call"><summary class="call-t">ดูเวอร์ชันกลาง (ข้ามสายงาน) — ' + esc(nc.title) + '</summary><div class="call-b">' + nbody + '</div></details>';
+    }
   }
   if (w.ex) h += '<h2>แบบฝึกหัดของบทนี้</h2>' + w.ex();
+  // spaced retrieval — ควิซย้อนสัปดาห์ก่อน (จาก content-retrieval.js)
+  if (w.n >= 2 && typeof window.RETRIEVAL === 'object' && window.RETRIEVAL && window.RETRIEVAL[w.n]) {
+    h += '<h2>🔁 ทบทวนสัปดาห์ก่อน — spaced retrieval</h2>' +
+      '<p class="hint">ควิซสั้นย้อน framework ของบทที่ ' + (w.n - 1) + ' — พยายามตอบจากความจำก่อน (testing effect: การดึงจากความจำช่วยให้จำได้นานกว่าการอ่านซ้ำ)</p>';
+    window.RETRIEVAL[w.n].forEach(function(it, i) {
+      h += QUIZ('r' + w.n + 'q' + i, esc(it.q), it.opts, it.correct, it.why);
+    });
+  }
+  // เจาะลึกทฤษฎี + ตัวอย่างเหตุการณ์จริง (ไม่บังคับ) — จาก content-deep.js
+  if (typeof window.DEEP === 'object' && window.DEEP && window.DEEP[w.n]) {
+    h += '<details class="call call-tip details-call deep-call"><summary class="call-t">🔭 เจาะลึกทฤษฎี + ตัวอย่างเหตุการณ์จริง (ไม่บังคับ)</summary><div class="call-b deep-body">' + window.DEEP[w.n].html() + '</div></details>';
+  }
   h += '<h2>แผนรายวันของสัปดาห์นี้</h2><p class="hint">ทุกวันเริ่มด้วย Thinking Journal 10 นาที (หน้าเครื่องมือ) — ติ๊กเมื่อทำครบ</p>' +
     TASKLIST(w.days.map(function(d) { return TASK('w' + w.n + 'd' + d.d, 'Day ' + d.d + ': ' + d.t, d.m); }));
   if (w.outputs && w.outputs.length) {

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>External Review · Critical Management 90</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .rv-wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px}
+  .rv-ok{background:var(--green-soft);color:var(--green);border-radius:12px;padding:20px 24px;font-weight:700;margin:16px 0}
+  .rv-err{background:var(--rose-soft);color:var(--rose);border-radius:12px;padding:12px 18px;font-weight:600;margin:12px 0;display:none}
+</style>
+</head>
+<body>
+<div class="rv-wrap">
+  <div class="hero"><h1>External Review — Critical Management 90</h1>
+    <p>คุณได้รับเชิญให้วิเคราะห์ management case เดียวกับผู้เรียน แล้วให้คะแนนตาม rubric 12 ด้าน เพื่อเป็น feedback จากภายนอก (ผลของคุณจะถูกเก็บบนเซิร์ฟเวอร์ของโปรแกรมเท่านั้น)</p>
+    <p id="rv-meta" style="font-weight:700"></p>
+  </div>
+  <div class="rv-err" id="rv-err"></div>
+  <div class="card" id="rv-case">
+    <h3 id="rv-case-title"></h3>
+    <div class="call call-case"><div class="call-b"><p id="rv-case-text"></p></div></div>
+    <p class="hint">✎ วิเคราะห์ด้วยการเขียนจริง (กระดาษ/ไฟล์ของคุณเอง) ภายใน 30 นาที แล้วให้คะแนนด้านล่าง — กติกาเดียวกับผู้เรียนทุกประการ</p>
+    <p><span class="timer" id="rv-timer">30:00</span> <button type="button" class="btn small ghost" id="rv-start">เริ่มจับเวลา 30 นาที</button></p>
+  </div>
+  <div class="card" id="rv-form">
+    <h3>ให้คะแนน rubric (1–5 ต่อด้าน)</h3>
+    <div id="rv-rubric"></div>
+    <div class="rubric-total">รวม: <span id="rv-total">36</span>/60</div>
+    <div class="field"><label>ชื่อผู้ให้ feedback (ไม่ใส่ได้ — จะแสดงเป็น "ไม่ระบุชื่อ")</label><input type="text" id="rv-reviewer" placeholder="เช่น หัวหน้าพยาบาล A / ที่ปรึกษา"></div>
+    <div class="field"><label>ความเห็นสำหรับผู้เรียน: ทำอะไรได้ดี / ข้ามอะไรไป / ควรฝึกอะไรต่อ</label><textarea id="rv-notes" rows="4" placeholder="เช่น แยก fact/assumption ได้ดี แต่ยังไม่มี alternative hypotheses และไม่ระบุ stakeholders"></textarea></div>
+    <button type="button" class="btn" id="rv-submit">ส่งความเห็น</button>
+  </div>
+  <div class="rv-ok" id="rv-done" style="display:none">✓ ส่งความเห็นแล้ว ขอบคุณมาก — ผู้เรียนจะเห็นผลของคุณเทียบกับคะแนนตัวเองในหน้าประเมินทันที</div>
+  <p class="hint" style="margin-top:20px">เครื่องมือของโปรแกรม Critical Management 90 — หน้านี้สำหรับผู้ให้ feedback ภายนอกเท่านั้น</p>
+</div>
+<script>
+'use strict';
+var RV_CASES = {
+  day1: { title: 'เคส A1 · Morale ทรุด', text: 'Ward C: complaint เรื่องทัศนคติพยาบาลเพิ่มขึ้น 2 เท่าใน 3 เดือน · sick leave เพิ่มจาก 4% เป็น 7% · engagement ลดจาก 3.9 → 3.1 · หัวหน้าเวร 2 คนเพิ่งเปลี่ยนใหม่ · turnover ยังทรงตัวที่ 9% · ผู้อำนวยการพยาบาลถามว่า "ต้องแก้อะไรก่อน"' },
+  day30: { title: 'เคส A2 · กด OT', text: 'ผู้บริหารสั่งลดค่า OT พยาบาล 15% ภายในไตรมาสหน้า โดย medication error และ fall rate ต้องไม่แย่ลง · OT ปัจจุบันเฉลี่ย 24 ชม./คน/เดือน · vacancy 12% · มี float pool เล็ก 4 คน · agency แพงกว่า OT 40%' },
+  day60: { title: 'เคส A3 · เปิดหอใหม่', text: 'เปิด ward ใหม่ 20 เตียงใน 4 เดือน · recruitment ติดขัด (ได้ 3 จาก 12 อัตรา) · หัวหน้าเวรที่เสนอไว้เพิ่งลาออก · มีข้อเสนอ: ย้ายพยาบาลเก่าบางส่วน / จ้าง agency / เลื่อนเปิด / เปิดครึ่งเดียว' },
+  day90: { title: 'เคส A4 · Readmission', text: 'Readmission ภายใน 30 วันสูงกว่าเป้า 40% · เกี่ยวข้อง 4 หน่วยงาน (OPD, ward, pharmacy, home care) · แต่ละหน่วยโทษกันคนละที่ · คุณได้รับมอบหมายให้นำทีมข้ามหน่วยงานแก้ปัญหานี้ใน 6 เดือน' }
+};
+var RV_RUBRIC = ['Problem framing','Evidence quality','Identify assumptions','Alternative hypotheses','Bias awareness','Systems thinking','Option generation','Risk / trade-off analysis','Decision rationale','Reflection / learning','Stakeholder & interest analysis','Framing & omission detection'];
+var RV_SCORES = RV_RUBRIC.map(function(){ return 3; });
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+var params = new URLSearchParams(location.search);
+var cp = params.get('c') || '', learner = params.get('l') || '';
+
+function showErr(msg){ var e = document.getElementById('rv-err'); e.textContent = msg; e.style.display = 'block'; }
+
+(function init(){
+  if (!RV_CASES[cp] || !/^[A-Za-z0-9_-]{8,64}$/.test(learner)) {
+    document.getElementById('rv-form').style.display = 'none';
+    document.getElementById('rv-case').style.display = 'none';
+    showErr('ลิงก์ไม่ถูกต้อง — โปรดขอลิงก์ใหม่จากผู้เรียน (ต้องมี checkpoint และรหัสผู้เรียนครบ)');
+    return;
+  }
+  var c = RV_CASES[cp];
+  document.getElementById('rv-case-title').textContent = c.title;
+  document.getElementById('rv-case-text').textContent = c.text;
+  document.getElementById('rv-meta').textContent = 'รอบประเมิน: ' + cp.replace('day', 'Day ') + ' · ผู้เรียน #' + learner.slice(-6);
+  var box = document.getElementById('rv-rubric');
+  box.innerHTML = RV_RUBRIC.map(function(name, i) {
+    return '<div class="rubric-row"><label>' + esc(name) + '</label>' +
+      '<input type="range" min="1" max="5" step="1" value="3" data-ri="' + i + '">' +
+      '<span class="rv" data-rv="' + i + '">3</span></div>';
+  }).join('');
+  box.addEventListener('input', function(e) {
+    var t = e.target;
+    if (!t.matches('[data-ri]')) return;
+    RV_SCORES[+t.dataset.ri] = +t.value;
+    box.querySelector('[data-rv="' + t.dataset.ri + '"]').textContent = t.value;
+    document.getElementById('rv-total').textContent = RV_SCORES.reduce(function(a, b){ return a + b; }, 0);
+  });
+})();
+
+var IV = null;
+document.getElementById('rv-start').addEventListener('click', function() {
+  var end = Date.now() + 30 * 60 * 1000;
+  var el = document.getElementById('rv-timer');
+  if (IV) clearInterval(IV);
+  IV = setInterval(function() {
+    var left = Math.max(0, end - Date.now());
+    var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+    el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    if (left <= 0) { clearInterval(IV); IV = null; el.classList.remove('running'); alert('ครบ 30 นาที — หยุดเขียนแล้วให้คะแนนได้เลย'); }
+  }, 500);
+});
+
+document.getElementById('rv-submit').addEventListener('click', function() {
+  var btn = this;
+  btn.disabled = true; btn.textContent = 'กำลังส่ง…';
+  fetch('/api/reviews', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      learnerId: learner,
+      checkpoint: cp,
+      reviewer: document.getElementById('rv-reviewer').value.trim(),
+      scores: RV_SCORES,
+      notes: document.getElementById('rv-notes').value.trim()
+    })
+  }).then(function(r) {
+    if (!r.ok) return r.json().then(function(j) { throw new Error(j.error || ('HTTP ' + r.status)); });
+    return r.json();
+  }).then(function(j) {
+    document.getElementById('rv-form').style.display = 'none';
+    var done = document.getElementById('rv-done');
+    done.style.display = 'block';
+    done.textContent = '✓ ส่งความเห็นแล้ว (รวม ' + j.total + '/60) ขอบคุณมาก — ผู้เรียนจะเห็นผลของคุณเทียบกับคะแนนตัวเองในหน้าประเมินทันที';
+  }).catch(function(e) {
+    btn.disabled = false; btn.textContent = 'ส่งความเห็น';
+    showErr('ส่งไม่สำเร็จ: ' + e.message + ' — ลองใหม่อีกครั้ง');
+  });
+});
+</script>
+</body>
+</html>

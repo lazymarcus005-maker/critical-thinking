@@ -1,0 +1,17 @@
+{
+  "name": "cm90-server",
+  "version": "1.0.0",
+  "description": "Server for Critical Management 90 — static site + sync API + SQLite persistence",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

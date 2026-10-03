@@ -224,6 +224,25 @@ tfoot td{font-weight:700;background:#f7f4ec}
 .qa .qa-s{font-size:.8rem;color:var(--ink-soft)}
 .milestone{border-left:5px solid var(--indigo)}
 
+/* details-based callouts (เคสกลาง / เจาะลึก) */
+.details-call{padding:0}
+.details-call summary{cursor:pointer;padding:14px 20px;list-style-position:inside;font-size:1rem}
+.details-call[open] summary{border-bottom:1px solid var(--line)}
+.details-call .call-b{padding:2px 20px 14px}
+.deep-call{border-left-color:var(--indigo)}
+.deep-body h2{margin-top:1.1em}
+.deep-body h3{margin-top:1em}
+.deep-body>:first-child{margin-top:0}
+
+/* sync status + external reviews */
+.sync-line{margin-top:6px;font-size:.72rem;color:#9db5b2;line-height:1.4}
+.ext-box{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px}
+.ext-box summary{cursor:pointer;font-weight:600;font-size:.9rem;color:var(--accent-ink)}
+.ext-inner{margin-top:8px}
+.ext-link{display:inline-block;max-width:100%;overflow-wrap:anywhere;font-size:.78rem}
+.ext-list{margin-top:6px}
+.ext-list .score-bar .sb-label{min-width:110px}
+
 @media (max-width:960px){
   .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-105%);transition:transform .25s}
   .sidebar.open{transform:translateX(0)}

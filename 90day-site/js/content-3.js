@@ -326,7 +326,7 @@ ${TBL(['ขั้น', 'สิ่งที่ต้องมี', 'เกณฑ�
 ])}
 ${H2('วันสุดท้าย — Day 90 (29 ธ.ค.)')}
 ${OL([
-  'ทำ <b>Day-90 Assessment</b>: เคส A4 (หน้าแบบประเมิน) 30 นาที → rubric /50 → เทียบ Day 1/30/60',
+  'ทำ <b>Day-90 Assessment</b>: เคส A4 (หน้าแบบประเมิน) 30 นาที → rubric /60 → เทียบ Day 1/30/60',
   'เขียน <b>"repeatable thinking process" ของตัวเอง</b> 1 หน้า — คำถามนำ: หลัง 90 วันนี้ เมื่อเจอปัญหาใหม่ คุณจะเดินผ่านขั้นตอนอะไรบ้าง (Frame → Evidence → Assumption → Alternatives → Challenge → Decide → Execute → Measure → Reflect)',
   'เขียน "สิ่งที่เปลี่ยนไป 3 อย่าง" + "สิ่งที่ยังอ่อนและจะฝึกต่อ"',
   'วางแผนรอบถัดไป: CNML exam (ถ้าผ่านเกณฑ์) · AONL Virtual NMI รอบถัดไป (ประกาศแล้ว 14–16 ก.ย. 2027) · HBS Online Strategy Execution รอบหน้า'

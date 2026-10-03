@@ -1,0 +1,16 @@
+services:
+  cm90:
+    build: .
+    image: cm90-app
+    container_name: cm90
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      DATA_DIR: /data
+      STATIC_DIR: /app/90day-site
+    volumes:
+      # บน Linux ให้รันก่อน: mkdir -p data && sudo chown 1000:1000 data (ดู README)
+      - ./data:/data
+    restart: unless-stopped
+    # healthcheck นิยามไว้ใน Dockerfile แล้ว (กัน drift ให้เก็บที่เดียว)

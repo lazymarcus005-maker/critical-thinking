@@ -30,7 +30,7 @@
 ## เริ่มคืนนี้ — Day 1 (1 ต.ค. 2026)
 
 - [ ] อ่านเอกสารนี้ทั้งหมด (15 นาที)
-- [ ] ทำ **Baseline Assessment รอบที่ 1**: เลือกเคส A1 (ภาคผนวก B) วิเคราะห์ 30 นาที ตาม rubric /50 (ภาคผนวก B) — เก็บไว้เทียบวันที่ 30/60/90
+- [ ] ทำ **Baseline Assessment รอบที่ 1**: เลือกเคส A1 (ภาคผนวก B) วิเคราะห์ 30 นาที ตาม rubric /60 (ภาคผนวก B) — เก็บไว้เทียบวันที่ 30/60/90
 - [ ] ตั้ง **Thinking Journal** (สมุดเล่มเดียว หรือไฟล์เดียว) แล้วเขียนวันแรกด้วย T1
 
 ---
@@ -156,7 +156,7 @@
 
 ### Day 29–30 (29–30 ต.ค.) · 30-Day Assessment
 
-- วิเคราะห์เคส **A2** (ภาคผนวก B) 30 นาที → ให้คะแนน rubric /50
+- วิเคราะห์เคส **A2** (ภาคผนวก B) 30 นาที → ให้คะแนน rubric /60
 - เทียบกับ baseline: reasoning เริ่มมี structure หรือยัง (ใช้ elements/standards ครบไหม, แยก fact/assumption ได้ไหม)
 - เขียน "สิ่งที่เปลี่ยนไป 3 ข้อ + สิ่งที่ยังอ่อน 1 ข้อ"
 - คาดหมายผล Day 30: **reasoning มี structure** — ไม่ต้องสมบูรณ์แค่มีระบบ
@@ -262,7 +262,7 @@
 
 ### Day 59–60 (28–29 พ.ย.) · 60-Day Assessment
 
-- วิเคราะห์เคส **A3** (ภาคผนวก B) 30 นาที → rubric /50 → เทียบ Day 30
+- วิเคราะห์เคส **A3** (ภาคผนวก B) 30 นาที → rubric /60 → เทียบ Day 30
 - คาดหมายผล Day 60: **decision quality ดีขึ้น** — มี alternatives, counter-evidence, และ risk analysis เสมอ
 - เช็ก leading indicators ครึ่งทาง (ภาคผนวก D)
 
@@ -347,7 +347,7 @@
 
 - **Day 89:** นำเสนอ capstone ต่อผู้บริหาร/ทีมจริง
 - **Day 90 (อังคาร 29 ธ.ค.):**
-  - วิเคราะห์เคส **A4** (ภาคผนวก B) 30 นาที → rubric /50 → เทียบ Day 1/30/60
+  - วิเคราะห์เคส **A4** (ภาคผนวก B) 30 นาที → rubric /60 → เทียบ Day 1/30/60
   - เขียน "repeatable thinking process" ของตัวเองเป็น 1 ประโยค + 1 หน้า
   - ตั้งเป้า Phase ถัดไป: CNML exam · HBS Online Strategy Execution (รอบ 18 พ.ย. 2026 เลยไปแล้ว — รอบถัดไป) · Virtual NMI รอบถัดไป (14–16 ก.ย. 2027 ที่ประกาศแล้ว หรือรอบ spring)
 
@@ -515,7 +515,7 @@ Review date
 
 **วิธี:** เอา management case ที่กำหนดให้ วิเคราะห์ 30 นาที (เขียน ไม่ใช่คิดในหัว) แล้วให้คะแนนตัวเองตาม rubric นี้ ใช้เครื่องมือพัฒนาภายใน — ไม่ใช่ validated psychometric assessment จึงไม่ต้องยึด "ต้องเพิ่ม X%"
 
-**Rubric (10 ด้าน):**
+**Rubric (12 ด้าน):**
 
 | Competency | Score |
 |---|---:|
@@ -528,8 +528,12 @@ Review date
 | Option generation | /5 |
 | Risk / trade-off analysis | /5 |
 | Decision rationale | /5 |
+| Stakeholder & interest analysis | /5 |
+| Framing & omission detection | /5 |
 | Reflection / learning | /5 |
-| **Total** | **/50** |
+| **Total** | **/60** |
+
+**หมายเหตุ:** Rubric อัปเดต 10→12 หัว ตามคำแนะนำหัวข้อ 5.2 ของเอกสารรีวิว (คะแนนเก่าที่บันทึกไว้ยังใช้เทียบได้ แต่เต็ม 50)
 
 **คาดหมายผล:** Day 1 = baseline · Day 30 = reasoning มี structure · Day 60 = decision quality ดีขึ้น (มี alternatives + counter-evidence เสมอ) · Day 90 = ใช้ framework กับปัญหาจริงได้อัตโนมัติ + ทำให้ทีมคิดดีขึ้น
 
@@ -608,3 +612,22 @@ Review date
 - [ASIORNA 2026](https://asiorna2026.org/)
 - [HBS Online — Strategy Execution](https://online.hbs.edu/courses/strategy-execution)
 - [Systematic review: simulation/case-based learning กับ nursing decision-making (PubMed)](https://pubmed.ncbi.nlm.nih.gov/28011333/)
+
+### งานวิจัย/ตำราต้นทาง
+
+*(อ้างตามผังเทียบ "เนื้อหา ↔ หลักวิชาการ" ใน `REVIEW-AND-RECOMMENDATIONS.md` — กลุ่ม บทที่ 9–10 รองรับหัว rubric ใหม่ 2 หัว ตามข้อเสนอ 5.1 ของเอกสารรีวิว)*
+
+- Abrami et al. (2008; 2015) — meta-analysis การสอน critical thinking, *Review of Educational Research* · ใช้ที่: โครงทั้งเล่ม (40/60 Learn/Apply, ปัญหาจริง, 90 วันต่อเนื่อง)
+- Kahneman & Tversky (1974) — Judgment under Uncertainty: Heuristics and Biases, *Science* · ใช้ที่: บทที่ 1–2
+- Meadows (1999) — Leverage Points: Places to Intervene in a System · ใช้ที่: บทที่ 5
+- Reason (2000) — Human Error: Models and Management (Swiss cheese model), *BMJ* · ใช้ที่: บทที่ 6
+- Klein (2007) — Performing a Project Premortem, *Harvard Business Review* · ใช้ที่: บทที่ 7
+- Gollwitzer (1999) — Implementation Intentions (if–then plans), *American Psychologist* · ใช้ที่: บทที่ 11 (trigger/response)
+- Roediger & Karpicke (2006) — Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention, *Psychological Science* · ใช้ที่: ควิซท้ายสัปดาห์ (spaced retrieval — ข้อเสนอ 5.2)
+- Toulmin (1958) — The Uses of Argument (warrant & backing) · ใช้ที่: บทที่ 9–10
+- Grice (1975) — Logic and Conversation (conversational implicature) · ใช้ที่: บทที่ 9–10
+- Entman (1993) — Framing: Toward Clarification of a Fractured Paradigm, *Journal of Communication* · ใช้ที่: บทที่ 9–10
+- Fisher & Ury (1981) — Getting to Yes (interests vs positions) · ใช้ที่: บทที่ 9–10
+- Mendelow (1991) — Power–Interest Grid (stakeholder analysis) · ใช้ที่: บทที่ 9–10
+- Kunda (1990) — The Case for Motivated Reasoning, *OBHDP* · ใช้ที่: บทที่ 9–10
+- Argyris (1994) — Good Communication That Blocks Learning (advocacy + inquiry), *Harvard Business Review* · ใช้ที่: บทที่ 9–10

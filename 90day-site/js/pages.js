@@ -2,7 +2,8 @@
 /* ===== pages: routes, handlers, boot ===== */
 
 /* ---------- shared data ---------- */
-var RUBRIC_ITEMS = ['Problem framing','Evidence quality','Identify assumptions','Alternative hypotheses','Bias awareness','Systems thinking','Option generation','Risk / trade-off analysis','Decision rationale','Reflection / learning'];
+var RUBRIC_ITEMS = ['Problem framing','Evidence quality','Identify assumptions','Alternative hypotheses','Bias awareness','Systems thinking','Option generation','Risk / trade-off analysis','Decision rationale','Reflection / learning','Stakeholder & interest analysis','Framing & omission detection'];
+var RUBRIC_MAX = RUBRIC_ITEMS.length * 5; // 12 หัว → /60 (rubric เดิม 10 หัว /50 — คะแนนเก่ายังเทียบได้)
 var RUB_CUR = {};
 var EDIT_DEC = null;
 var TIMER = { key: null, end: 0, iv: null };
@@ -44,13 +45,21 @@ function buildNav(active) {
   h += item('#/journal', 'Thinking Journal', null, active === 'journal');
   h += item('#/decisions', 'Decision Journal', null, active === 'decisions');
   h += item('#/assessment', 'แบบประเมิน Day 1/30/60/90', null, active === 'assessment');
-  h += item('#/templates', 'เทมเพลต T1–T12', null, active === 'templates');
+  h += item('#/reading', 'โมดูล: อ่านระหว่างบรรทัด', null, active === 'reading');
+  h += item('#/templates', 'เทมเพลต T1–T14', null, active === 'templates');
   h += '<div class="nav-sec">เพิ่มเติม</div>';
   h += item('#/guide', 'คู่มือการใช้งาน', null, active === 'guide');
   h += item('#/resources', 'หลักสูตร · สำรองข้อมูล', null, active === 'resources');
   document.getElementById('side-nav').innerHTML = h;
   document.getElementById('side-foot').innerHTML =
-    '<div class="prog" style="background:#24444b"><div class="prog-fill js-prog-fill" style="width:' + p.pct + '%"></div></div>ความคืบหน้ารวม ' + p.pct + '%';
+    '<div class="prog" style="background:#24444b"><div class="prog-fill js-prog-fill" style="width:' + p.pct + '%"></div></div>ความคืบหน้ารวม ' + p.pct + '%' +
+    '<div class="sync-line">' + syncStatusLine() + '</div>';
+}
+function syncStatusLine() {
+  if (!(window.SYNC)) return 'บันทึกในเบราว์เซอร์นี้';
+  if (SYNC.mode !== 'server') return 'บันทึกในเบราว์เซอร์นี้เท่านั้น';
+  var map = { idle: '☁️ ซิงก์เซิร์ฟเวอร์: พร้อม', saving: '☁️ กำลังบันทึกขึ้นเซิร์ฟเวอร์…', saved: '☁️ บันทึกบนเซิร์ฟเวอร์แล้ว ✓', error: '⚠️ บันทึกบนเซิร์ฟเวอร์ไม่สำเร็จ', conflict: '☁️ ชนกัน — โหลดเวอร์ชันเซิร์ฟเวอร์แล้ว' };
+  return map[SYNC.status] || '';
 }
 
 /* ---------- helpers ---------- */
@@ -144,7 +153,7 @@ function routeHome() {
   h += '<div class="qa-grid">' +
     '<a class="qa" href="#/journal"><div class="qa-t">Thinking Journal <span class="chip chip-now">🔥 ' + journalStreak() + ' วันต่อเนื่อง</span></div><div class="qa-s">7 คำถาม · 10 นาที/วัน — กฎเหล็กข้อเดียวที่ห้ามขาด</div></a>' +
     '<a class="qa" href="#/decisions"><div class="qa-t">Decision Journal' + (dueDecs ? ' <span class="chip chip-warn">' + dueDecs + ' รายการถึงเวลาทบทวน</span>' : '') + '</div><div class="qa-s">บันทึกก่อนรู้ผล · ทบทวนตาม review date</div></a>' +
-    '<a class="qa" href="#/assessment"><div class="qa-t">แบบประเมิน</div><div class="qa-s">Rubric 10 ด้าน /50 · เคส A1–A4 พร้อมจับเวลา</div></a>' +
+    '<a class="qa" href="#/assessment"><div class="qa-t">แบบประเมิน</div><div class="qa-s">Rubric ' + RUBRIC_ITEMS.length + ' ด้าน /' + RUBRIC_MAX + ' · เคส A1–A4 พร้อมจับเวลา</div></a>' +
     '</div>';
 
   /* stats */
@@ -169,8 +178,17 @@ function routeHome() {
   /* settings */
   h += '<div class="card"><h3>⚙️ ตั้งค่า</h3>' +
     '<div class="field"><label>วันเริ่มโปรแกรม (ปัจจุบัน: ' + fmtDate(programStart()) + ')</label>' +
-    '<input type="date" id="set-start" value="' + esc(programStart()) + '"></div>' +
-    '<p class="hint">ทุกอย่างบันทึกในเบราว์เซอร์นี้เท่านั้น — สำรองข้อมูลเป็นระยะที่ <a href="#/resources">หลักสูตร · สำรองข้อมูล</a></p></div>';
+    '<input type="date" id="set-start" value="' + esc(programStart()) + '"></div>';
+  if (window.SYNC && SYNC.mode === 'server' && SYNC.learner) {
+    h += '<h3>ใช้งานข้ามเครื่อง (server mode)</h3>' +
+      '<p class="small">ข้อมูลผูกกับ <b>รหัสผู้เรียน</b> ของเบราว์เซอร์นี้:</p>' +
+      '<p><code class="ext-link">' + esc(SYNC.learner) + '</code> <button type="button" class="btn small ghost" data-copy-ext="' + esc(SYNC.learner) + '">คัดลอกรหัส</button></p>' +
+      '<p class="small">เปิดเว็บจากเครื่อง/มือถืออื่น (URL เดียวกัน) แล้วกรอกรหัสนี้เพื่อดึงข้อมูลชุดเดียวกัน:</p>' +
+      '<div class="field"><input type="text" id="set-learner" placeholder="วางรหัสผู้เรียนเดิมที่นี่"></div>' +
+      '<button type="button" class="btn small ghost" id="btn-use-learner">ใช้รหัสนี้ (โหลดข้อมูลของมัน)</button> ' +
+      '<p class="hint">⚠️ รหัสนี้คือ "กุญแจ" ของข้อมูล — อย่าแชร์ให้คนที่ไม่ไว้ใจ</p>';
+  }
+  h += '<p class="hint">ทุกอย่างบันทึกในเบราว์เซอร์นี้เท่านั้น — สำรองข้อมูลเป็นระยะที่ <a href="#/resources">หลักสูตร · สำรองข้อมูล</a></p></div>';
 
   return { html: h, title: 'หน้าแรก' };
 }
@@ -305,24 +323,25 @@ function rubricForm(key) {
       '<span class="rv" data-rv="' + i + '">' + cur[i] + '</span></div>';
   });
   var sum = cur.reduce(function(a, b) { return a + b; }, 0);
-  h += '</div><div class="rubric-total">รวม: <span data-rubtotal="' + key + '">' + sum + '</span>/50</div>';
+  h += '</div><div class="rubric-total">รวม: <span data-rubtotal="' + key + '">' + sum + '</span>/' + RUBRIC_MAX + '</div>';
   return h;
 }
 function routeAssessment() {
   var rubric = store.get('rubric', []);
   var h = '<h1>แบบประเมิน Day 1 / 30 / 60 / 90</h1>' +
-    '<p class="hint">วิธี: เปิดจับเวลา 30 นาที → วิเคราะห์เคสด้วยการเขียน (ไม่ใช่คิดในหัว) → ให้คะแนนตัวเองตาม rubric 10 ด้าน → บันทึก · rubric นี้เป็นเครื่องมือพัฒนาภายใน ไม่ใช่ validated assessment จึงไม่ต้องยึด "ต้องเพิ่ม X%"</p>';
+    '<p class="hint">วิธี: เปิดจับเวลา 30 นาที → วิเคราะห์เคสด้วยการเขียน (ไม่ใช่คิดในหัว) → ให้คะแนนตัวเองตาม rubric 12 ด้าน → บันทึก · rubric นี้เป็นเครื่องมือพัฒนาภายใน ไม่ใช่ validated assessment จึงไม่ต้องยึด "ต้องเพิ่ม X%"</p>';
   ASSESS.forEach(function(a) {
     var mine = rubric.filter(function(r) { return r.cp === a.key; });
     var last = mine.length ? mine[mine.length - 1] : null;
     h += '<div class="card"><h3>' + a.label + ' — ' + a.caseTitle + '</h3>' +
-      '<p class="small">' + esc(a.when) + (last ? ' · <span class="chip chip-done">บันทึกแล้ว ' + fmtDate(last.date) + ' ได้ ' + last.total + '/50</span>' : '') + '</p>' +
+      '<p class="small">' + esc(a.when) + (last ? ' · <span class="chip chip-done">บันทึกแล้ว ' + fmtDate(last.date) + ' ได้ ' + last.total + '/' + (last.scores.length >= 12 ? 60 : 50) + '</span>' : '') + '</p>' +
       '<div class="call call-case"><div class="call-t">' + esc(a.caseTitle) + '</div><div class="call-b"><p>' + esc(a.text) + '</p></div></div>' +
       '<p class="hint">✎ ' + esc(a.hint) + '</p>' +
       '<p><span class="timer" id="timer-' + a.key + '">30:00</span> <button type="button" class="btn small ghost" data-timer-start="' + a.key + '">เริ่มจับเวลา 30 นาที</button></p>' +
       '<h3>ให้คะแนนตัวเอง</h3>' + rubricForm(a.key) +
       FIELD('rub-notes-' + a.key, 'หมายเหตุ: ทำอะไรได้ดี / ข้ามอะไรไป / จะฝึกอะไรต่อ', '', 3) +
-      '<button type="button" class="btn" data-save-rubric="' + a.key + '">บันทึกผล ' + a.label + '</button></div>';
+      '<button type="button" class="btn" data-save-rubric="' + a.key + '">บันทึกผล ' + a.label + '</button>' +
+      '<div class="ext-reviews" id="ext-reviews-' + a.key + '">' + extReviewsPlaceholder(a.key) + '</div></div>';
   });
   h += '<div class="card"><h3>สรุปเทียบผล</h3>';
   var any = false;
@@ -331,11 +350,55 @@ function routeAssessment() {
     if (!mine.length) return;
     any = true;
     var last = mine[mine.length - 1];
-    h += '<div class="score-bar"><span class="sb-label">' + a.label + '</span><div class="sb-track"><div class="sb-fill" style="width:' + (last.total / 50 * 100) + '%"></div></div><span class="sb-num">' + last.total + '/50</span></div>';
+    var max = (last.scores && last.scores.length >= 12) ? 60 : 50;
+    h += '<div class="score-bar"><span class="sb-label">' + a.label + ' (ตัวเอง)</span><div class="sb-track"><div class="sb-fill" style="width:' + Math.min(100, last.total / max * 100) + '%"></div></div><span class="sb-num">' + last.total + '/' + max + '</span></div>';
   });
   if (!any) h += '<p class="hint">ยังไม่มีผลประเมิน — เริ่มที่ Baseline (Day 1)</p>';
   h += '</div>';
+  if (window.SYNC && SYNC.mode === 'server') loadExtReviews();
   return { html: h, title: 'แบบประเมิน' };
+}
+function extReviewsPlaceholder(key) {
+  if (!(window.SYNC && SYNC.mode === 'server' && SYNC.learner)) return '';
+  var link = location.origin + '/review.html?c=' + key + '&l=' + encodeURIComponent(SYNC.learner);
+  return '<details class="ext-box"><summary>👥 ขอความเห็นจากภายนอก (external feedback — จุดอ่อนที่สุดของการประเมินตัวเอง)</summary>' +
+    '<div class="ext-inner">' +
+    '<p class="small">ส่งลิงก์นี้ให้เพื่อนร่วมงาน/หัวหน้า/ที่ปรึกษา เพื่อให้เขาวิเคราะห์<b>เคสเดียวกันนี้</b>และให้คะแนน rubric เดียวกัน — ผลจะถูกเก็บบนเซิร์ฟเวอร์และแสดงเทียบกับคะแนนตัวเองที่นี่</p>' +
+    '<p class="small" style="color:var(--amber)">⚠️ ลิงก์นี้มีรหัสผู้เรียนฝังอยู่ — ใครมีรหัสนี้สามารถเข้าถึง/ลบข้อมูลของบัญชีนี้ได้ จึงควรส่งเฉพาะคนที่ไว้ใจเท่านั้น</p>' +
+    '<p><code class="ext-link">' + esc(link) + '</code> <button type="button" class="btn small ghost" data-copy-ext="' + esc(link) + '">คัดลอกลิงก์</button></p>' +
+    '<div class="ext-list" data-ext-list="' + key + '"><p class="hint">กำลังโหลดความเห็นภายนอก…</p></div>' +
+    '</div></details>';
+}
+function loadExtReviews() {
+  if (!(window.SYNC && SYNC.mode === 'server' && SYNC.learner)) return;
+  fetch('/api/reviews?learner=' + encodeURIComponent(SYNC.learner)).then(function(r) { return r.ok ? r.json() : { reviews: [] }; }).then(function(j) {
+    (j.reviews || []).forEach(function(rv) {
+      var box = document.querySelector('[data-ext-list="' + rv.checkpoint + '"]');
+      if (!box) return;
+      var empty = box.querySelector('.hint');
+      if (empty) empty.remove();
+      var max = (rv.scores && rv.scores.length >= 12) ? 60 : 50;
+      var item = document.createElement('div');
+      item.className = 'score-bar';
+      item.innerHTML = '<span class="sb-label">👤 ' + esc(rv.reviewer || 'ไม่ระบุชื่อ') + '</span>' +
+        '<div class="sb-track"><div class="sb-fill" style="width:' + Math.min(100, rv.total / max * 100) + '%"></div></div>' +
+        '<span class="sb-num">' + rv.total + '/' + max + '</span>';
+      box.appendChild(item);
+      if (rv.notes) {
+        var note = document.createElement('p');
+        note.className = 'small';
+        note.textContent = '— ' + rv.notes;
+        box.appendChild(note);
+      }
+    });
+    document.querySelectorAll('[data-ext-list] .hint').forEach(function(p) {
+      if (p.textContent.indexOf('กำลังโหลด') === 0) p.textContent = 'ยังไม่มีความเห็นภายนอก — ส่งลิงก์ด้านบนไปได้เลย';
+    });
+  }).catch(function() {
+    document.querySelectorAll('[data-ext-list] .hint').forEach(function(p) {
+      if (p.textContent.indexOf('กำลังโหลด') === 0) p.textContent = 'โหลดความเห็นภายนอกไม่สำเร็จ — ลองรีเฟรชหน้านี้ใหม่';
+    });
+  });
 }
 
 /* ---------- route: templates ---------- */
@@ -350,16 +413,30 @@ function routeTemplates() {
     ['T7 · Decision Matrix (weighted)', '| Option | เกณฑ์1 (w=?) | เกณฑ์2 | เกณฑ์3 | เกณฑ์4 | เกณฑ์5 | รวมถ่วงน้ำหนัก |\nกฎ: ทุกช่องต้องมี rationale 1 บรรทัด — ให้คะแนนไม่ได้เพราะไม่มี data = unknown\nPre-mortem: "ถ้า option ที่เลือกล้มใน 6 เดือน สาเหตุคืออะไร" (≥5 ข้อ)\nแยก: ป้องกันได้ / ตรวจจับได้ (ตั้ง trigger) / ยอมรับได้'],
     ['T8 · PDSA One-Pager', 'Aim: [เพิ่ม/ลดอะไร] ที่ [ใคร/ไหน] จาก [baseline] เป็น [เป้า] ภายใน [วันที่] + balancing measure\nChange hypothesis: ถ้าเราทำ X แล้ว Y จะเกิดขึ้นเพราะ Z\nPlan: ใคร ทำอะไร ที่ไหน นานแค่ไหน (เล็กพอทำได้ใน 1 สัปดาห์)\nDo: บันทึกสิ่งที่เกิดจริง (รวมที่ไม่คาดคิด)\nStudy: เทียบกับ prediction\nAct: adapt / adopt / abandon\nMeasures: Outcome / Process / Balancing'],
     ['T9 · Problem Framing Canvas (workshop 30 นาที)', '5 นาที   แต่ละคนเขียน problem statement แยกกัน (ห้ามคุย)\n10 นาที  อ่านออกเสียงทีละคน — ห้ามแก้/ห้ามโต้แย้ง (ทางแก้ที่ลอยมา จดไว้แผง "สำรองทางแก้")\n10 นาที  จัดกลุ่ม: statement ไหนต่างกันตรงไหน (ปัญหาเดียวกันไหม?)\n5 นาที    สังเคราะห์ problem statement ร่วม 1 ประโยค + ตัวชี้วัด\nเช็ค:   เป็น "ปัญหา" หรือแอบเป็น "ทางแก้" แล้ว'],
-    ['T10 · Red Team Question Card', 'What are we assuming?\nWhat evidence is weak?\nWhat could make this plan fail?\nWho sees this differently?\nWhat second-order effect are we missing?\nWhat would our strongest critic say?\n\nกติกา: ประกาศบทบาทล่วงหน้า · คำถาม ไม่ใช่ความเห็น · เจ้าของแผน "จดไว้ก่อน" ห้ามปกป้องทันที · หมุนเวียนคน'],
+    ['T10 · Red Team Question Card', 'What are we assuming?\nWhat evidence is weak?\nWhat could make this plan fail?\nWho sees this differently?\nWhat second-order effect are we missing?\nWhat would our strongest critic say?\nWhose interests does this option serve — and whose does it ignore?\nWhat are we conspicuously not discussing, and who benefits from not discussing it?\n\nกติกา: ประกาศบทบาทล่วงหน้า · คำถาม ไม่ใช่ความเห็น · เจ้าของแผน "จดไว้ก่อน" ห้ามปกป้องทันที · หมุนเวียนคน'],
     ['T11 · Scenario / Trigger Plan', '                Best case | Base case | Worst case\nผลลัพธ์ (เลข):        |          |\nMechanism (ทำไม):    |          |\nLeading indicators:\nTrigger (จุดตัดสินใจ): ถ้า X > / < ____ แล้ว...\nResponse: pause / adjust / escalate\nผู้ตัดสินทันที (ไม่ต้องรอประชุม): [ชื่อ]'],
-    ['T12 · Executive Decision Memo (1 หน้า, BLUF)', 'Problem\nWhy it matters\nEvidence\nRoot causes\nOptions\nTrade-offs\nRecommendation  ← ต้องมีเสมอ + เหตุผลว่าทำไมไม่ใช่ทางอื่น\nRisks\nMitigation\nMetrics + Review date\n\nทดสอบ: ผู้อ่านจริง 2 นาที ต้องรู้ว่าจะตัดสินอะไร']
+    ['T12 · Executive Decision Memo (1 หน้า, BLUF)', 'Problem\nWhy it matters\nEvidence\nRoot causes\nOptions\nTrade-offs\nRecommendation  ← ต้องมีเสมอ + เหตุผลว่าทำไมไม่ใช่ทางอื่น\nRisks\nMitigation\nMetrics + Review date\n\nทดสอบ: ผู้อ่านจริง 2 นาที ต้องรู้ว่าจะตัดสินอะไร'],
+    ['T13 · Incentive Audit (อ่านระหว่างบรรทัด)', 'Speaker: ______________________\n1. ผลประโยชน์อะไรของเขาถูกกระทบจากเรื่องนี้ (เงิน / ตำแหน่ง / ภาระงาน / ชื่อเสียง / หน้าที่รับผิด)?\n2. เขาถือสารสนเทศที่เปรียบกว่าเราตรงไหน (เห็นข้อมูลที่เราไม่เห็น)?\n3. ถ้าเขาถูกถามตรง ๆ ต่อหน้าคนอื่น เขาจะกล้าพูดสิ่งนี้ไหม — ทำไม?\n4. ใครได้ประโยชน์จากการ "เลือกเล่า" ข้อมูลแบบที่เห็นนี้?\n5. สมมุติฐานของเราเรื่อง incentive นี้ — ทดสอบได้อย่างไร ถามใครได้อย่างปลอดภัย?\n\nกันสุดโต่ง: คนส่วนใหญ่เชื่อจริง ไม่ได้แอบแผน (Kunda 1990) — audit เพื่อเข้าใจ ไม่ใช่เพื่อจับผิด'],
+    ['T14 · Framing & Omission Audit', 'ประโยค/เอกสารที่วิเคราะห์: ______________________\n1. ใครนิยามปัญหานี้ และนิยามไว้อย่างไร?\n2. คำไหนแฝงการตัดสินคุณค่า ("หนี", "ไม่ค่อยรู้", "แก้ไม่ตก")?\n3. สาเหตุถูกฝังในประโยคไหน ("X เพราะ Y" — Y ยังไม่พิสูจน์)?\n4. เขียนเวอร์ชันกลางที่ตัด framing ออก (แค่ข้อมูล + ช่องว่าง)\n5. สุนัขที่ไม่เห่า: 5 คำถามที่ "คนที่รู้งานต้องถาม" — ข้อไหนหายไป?\n6. ใครได้ประโยชน์จากการไม่พูดเรื่องที่หายไป?']
   ];
-  var h = '<h1>เทมเพลต T1–T12</h1><p class="hint">คัดลอกไปใช้ในสมุด/ไฟล์ของคุณ — ปุ่มคัดลอกอยู่มุมขวาของแต่ละหัวข้อ</p>';
+  var h = '<h1>เทมเพลต T1–T14</h1><p class="hint">คัดลอกไปใช้ในสมุด/ไฟล์ของคุณ — ปุ่มคัดลอกอยู่มุมขวาของแต่ละหัวข้อ</p>';
   T.forEach(function(t, i) {
     h += '<div class="tpl-head"><h3>' + esc(t[0]) + '</h3><button type="button" class="btn small ghost" data-copy="tpl-' + i + '">คัดลอก</button></div>' +
       '<pre class="tpl" id="tpl-' + i + '">' + esc(t[1]) + '</pre>';
   });
   return { html: h, title: 'เทมเพลต' };
+}
+
+/* ---------- route: reading-between-the-lines module ---------- */
+function routeReading() {
+  var h = '<h1>โมดูลเสริม: อ่านระหว่างบรรทัด</h1>' +
+    '<p class="hint">บริบท ผลประโยชน์ และสิ่งที่หายไป — ตามคำแนะนำหัวข้อ 5.1 ของเอกสารรีวิว · แนะนำให้ทำหลังจบ Week 9–10 (ใช้เทมเพลต T13–T14 ประกอบ)</p>';
+  if (window.READING && window.READING.html) {
+    h += window.READING.html();
+  } else {
+    h += '<p class="hint">ยังไม่ได้โหลดเนื้อหาโมดูล (ไฟล์ content-reading.js หายไปหรือโหลดไม่สำเร็จ)</p>';
+  }
+  return { html: h, title: 'อ่านระหว่างบรรทัด' };
 }
 
 /* ---------- route: guide ---------- */
@@ -369,11 +446,15 @@ function routeGuide() {
       '<b>บทเรียน 13 บท</b> (เมนูซ้าย) = 13 สัปดาห์ของโปรแกรม แต่ละบทมีเนื้อหาเต็ม + แบบฝึกหัด + เคสสัปดาห์ + แผนรายวันที่ติ๊กได้',
       '<b>Thinking Journal</b> = เขียนทุกวัน 10 นาที (7 คำถาม) — บันทึกได้วันละ 1 รายการ แก้ไขซ้ำได้',
       '<b>Decision Journal</b> = บันทึก decision สำคัญก่อนรู้ผล เมื่อถึง review date ระบบจะติดธง "ถึงเวลาทบทวน" พร้อมช่องกรอกผลจริง',
-      '<b>แบบประเมิน</b> = เคส A1–A4 + จับเวลา 30 นาที + rubric 10 ด้าน (/50) — ทำ 4 ครั้งตามวัน Day 1/30/60/90',
-      '<b>เทมเพลต T1–T12</b> = อ้างอิง/คัดลอกไปใช้นอกระบบ',
+      '<b>แบบประเมิน</b> = เคส A1–A4 + จับเวลา 30 นาที + rubric 12 ด้าน (/60; คะแนนเก่า 10 ด้าน ยังแสดงเทียบได้) — ทำ 4 ครั้งตามวัน Day 1/30/60/90',
+      '<b>เทมเพลต T1–T14</b> = อ้างอิง/คัดลอกไปใช้นอกระบบ',
       '<b>หน้าแรก</b> = บอก "งานของวันนี้" อัตโนมัติตามวันเริ่มโปรแกรม'
     ]) + '</div>' +
-    '<div class="card"><h3>ข้อมูลของคุณถูกเก็บที่ไหน</h3>' + P('ทุกอย่าง (คำตอบแบบฝึกหัด, journal, decision, คะแนนประเมิน, ติ๊กงาน) ถูกบันทึกใน <b>localStorage ของเบราว์เซอร์เครื่องนี้</b> — ไม่มีการส่งขึ้นอินเทอร์เน็ตใด ๆ ทั้งสิ้น') +
+    '<div class="card"><h3>ข้อมูลของคุณถูกเก็บที่ไหน</h3>' +
+    (window.SYNC && SYNC.mode === 'server'
+      ? P('คุณกำลังใช้ผ่าน <b>เซิร์ฟเวอร์</b> — ข้อมูลทั้งหมด (คำตอบ, journal, decision, คะแนน) ถูกบันทึก<b>อัตโนมัติลงฐานข้อมูล SQLite บนเซิร์ฟเวอร์</b> (ปกติ <code>/data/cm90.db</code> ในโวลุ่มของ Docker) และซิงก์กลับเครื่องนี้ตอนเปิดหน้าใหม่') +
+        P('<b>การใช้งานข้ามเครื่อง:</b> ข้อมูลผูกกับ <b>รหัสผู้เรียน</b> ของแต่ละเบราว์เซอร์ — เปิดหน้าแรก → ตั้งค่า → คัดลอกรหัสผู้เรียนจากเครื่องหลัก ไปกรอก "ใช้รหัสผู้เรียนเดิม" ที่เครื่องอื่น จึงจะเห็นข้อมูลชุดเดียวกัน (รหัสนี้คือกุญแจ อย่าแชร์ให้คนไม่ไว้ใจ)')
+      : P('ทุกอย่าง (คำตอบแบบฝึกหัด, journal, decision, คะแนนประเมิน, ติ๊กงาน) ถูกบันทึกใน <b>localStorage ของเบราว์เซอร์เครื่องนี้</b> — ไม่มีการส่งขึ้นอินเทอร์เน็ตใด ๆ ทั้งสิ้น (ถ้าเปิดผ่านเซิร์ฟเวอร์ ระบบจะซิงก์ขึ้นเซิร์ฟเวอร์ให้อัตโนมัติ)')) +
     '<p><b>ข้อควรระวัง:</b> การล้างข้อมูลเบราว์เซอร์/เปลี่ยนเครื่อง = ข้อมูลหาย — <b>สำรองข้อมูลทุก 1–2 สัปดาห์</b> ผ่านหน้า "หลักสูตร · สำรองข้อมูล" (ดาวน์โหลดไฟล์ .json เก็บไว้) และกู้คืนได้ด้วยปุ่มนำเข้า</p></div>' +
     '<div class="card"><h3>จังหวะรายสัปดาห์ที่ระบบออกแบบไว้</h3>' + TBL(['สล็อต', 'เนื้อหา', 'เวลา'], [
       ['วันที่ 1 ของสัปดาห์', 'Learn: framework ของสัปดาห์', '30–45 นาที'],
@@ -404,8 +485,11 @@ function routeResources() {
       ['เก็บไว้รอบหน้า', 'HBS Online — Strategy Execution', '~40–45 ชม., $1,949 — ไม่ให้แย่งเวลา 90 วันนี้']
     ]) + '<p class="small">แหล่งอ้างอิง: <a href="https://www.aonl.org/resources/nurse-leader-competencies" target="_blank" rel="noopener">AONL Nurse Leader Competencies</a> · <a href="https://www.ihi.org/learn/courses/open-school" target="_blank" rel="noopener">IHI Open School</a> · <a href="https://www.criticalthinking.org/pages/steps-of-critical-thinking/480" target="_blank" rel="noopener">Foundation for Critical Thinking</a> · <a href="https://www.aacnnursing.org/essentials/tool-kit/domains-concepts/systems-based-practice" target="_blank" rel="noopener">AACN Systems-Based Practice</a></p></div>';
   h += '<div class="card"><h3>สำรอง / กู้คืน / ล้างข้อมูล</h3>' +
-    '<p class="small">ข้อมูลทั้งหมดอยู่ในเบราว์เซอร์นี้เท่านั้น — แนะนำสำรองทุก 1–2 สัปดาห์</p>' +
-    '<button type="button" class="btn" id="btn-export-json">ดาวน์โหลดข้อมูลสำรอง (.json)</button> ' +
+    (window.SYNC && SYNC.mode === 'server'
+      ? '<p class="small">โหมดเซิร์ฟเวอร์: ข้อมูลถูกบันทึกอัตโนมัติบนเซิร์ฟเวอร์ (SQLite) แล้ว — ปุ่มด้านล่างดาวน์โหลดสำรองจากเซิร์ฟเวอร์โดยตรง (รวมความเห็นภายนอก)</p>' +
+        '<p><a class="btn" href="/api/export?learner=' + encodeURIComponent(SYNC.learner || '') + '">ดาวน์โหลดสำรองจากเซิร์ฟเวอร์ (.json)</a></p>'
+      : '<p class="small">ข้อมูลทั้งหมดอยู่ในเบราว์เซอร์นี้เท่านั้น — แนะนำสำรองทุก 1–2 สัปดาห์ (ถ้าเสิร์ฟจากเซิร์ฟเวอร์ ข้อมูลจะถูกซิงก์ขึ้นเซิร์ฟเวอร์อัตโนมัติ)</p>') +
+    '<button type="button" class="btn ghost" id="btn-export-json">ดาวน์โหลดข้อมูลสำรองเครื่องนี้ (.json)</button> ' +
     '<button type="button" class="btn ghost" id="btn-export-md">ส่งออก Journal เป็น Markdown</button> ' +
     '<label class="btn ghost" style="cursor:pointer">นำเข้าไฟล์สำรอง<input type="file" id="import-file" accept=".json" style="display:none"></label> ' +
     '<button type="button" class="btn warn" id="btn-reset">ล้างข้อมูลทั้งหมด</button></div>';
@@ -553,7 +637,8 @@ function exportMarkdown() {
   });
   md += '## Rubric\n\n';
   store.get('rubric', []).forEach(function(r) {
-    md += '- ' + r.cp + ' (' + r.date + '): ' + r.total + '/50' + (r.notes ? ' — ' + r.notes : '') + '\n';
+    var max = (r.scores && r.scores.length >= 12) ? 60 : 50;
+    md += '- ' + r.cp + ' (' + r.date + '): ' + r.total + '/' + max + (r.notes ? ' — ' + r.notes : '') + '\n';
   });
   download('cm90-journal-' + todayStr() + '.md', md, 'text/markdown');
 }
@@ -567,6 +652,9 @@ function handleImport(input) {
       var n = 0;
       Object.keys(data).forEach(function(k) { if (k.indexOf('cm90.') === 0) { localStorage.setItem(k, data[k]); n++; } });
       alert('นำเข้าเรียบร้อย (' + n + ' รายการ)');
+      if (window.SYNC && SYNC.mode === 'server' && SYNC.pushState) {
+        SYNC.pushState(); // นำเข้าแล้วดันข้อมูลชุดใหม่ขึ้นเซิร์ฟเวอร์ทันที
+      }
       render();
     } catch (err) { alert('ไฟล์ไม่ถูกต้อง'); }
     input.value = '';
@@ -576,13 +664,25 @@ function handleImport(input) {
 function resetAll() {
   if (!confirm('ล้างข้อมูลทั้งหมดของโปรแกรมนี้ (งาน, journal, decision, คะแนน)? ทำแล้วย้อนกลับไม่ได้')) return;
   if (!confirm('ยืนยันอีกครั้ง — ล้างจริงหรือ? (แนะนำดาวน์โหลดข้อมูลสำรองก่อน)')) return;
-  var keys = [];
-  for (var i = 0; i < localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (k.indexOf('cm90.') === 0) keys.push(k);
+  var finish = function() {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k.indexOf('cm90.') === 0) keys.push(k);
+    }
+    keys.forEach(function(k) { localStorage.removeItem(k); });
+    if (window.SYNC) { SYNC.learner = null; SYNC.bootstrapped = false; SYNC.ready.then(function() { SYNC.ensureLearner(); render(); }); }
+    render();
+  };
+  if (window.SYNC && SYNC.mode === 'server') {
+    // ล้างเซิร์ฟเวอร์ก่อนเสมอ — ถ้าล้างไม่สำเร็จ ห้ามล้างเครื่อง ไม่งั้นข้อมูลจะ "ฟื้น" กลับมาตอนซิงก์
+    SYNC.wipeServer().then(function(ok) {
+      if (!ok) { alert('ล้างข้อมูลบนเซิร์ฟเวอร์ไม่สำเร็จ — ยังไม่ล้างข้อมูลของเครื่องนี้ ลองใหม่ภายหลัง'); return; }
+      finish();
+    });
+    return;
   }
-  keys.forEach(function(k) { localStorage.removeItem(k); });
-  render();
+  finish();
 }
 
 /* ---------- global event delegation ---------- */
@@ -615,6 +715,16 @@ document.addEventListener('change', function(e) {
     return;
   }
   if (t.id === 'set-start') { store.set('settings.start', t.value); render(); return; }
+  if (t.id === 'btn-use-learner') {
+    var inp = document.getElementById('set-learner');
+    var id = inp ? inp.value.trim() : '';
+    if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) { alert('รหัสผู้เรียนไม่ถูกต้อง (8–64 ตัวอักษร: a-z A-Z 0-9 _ -)'); return; }
+    if (!confirm('เปลี่ยนไปใช้รหัสผู้เรียนนี้? ข้อมูลเดิมของเบราว์เซอร์นี้จะถูกแทนที่ด้วยข้อมูลของรหัสดังกล่าวหลังโหลดหน้าใหม่')) return;
+    localStorage.setItem('cm90.learner', id);
+    localStorage.removeItem('cm90.lastSync');
+    location.reload();
+    return;
+  }
   if (t.id === 'import-file') { handleImport(t); return; }
 });
 document.addEventListener('click', function(e) {
@@ -636,6 +746,12 @@ document.addEventListener('click', function(e) {
       el.textContent = 'คัดลอกแล้ว ✓';
       setTimeout(function() { el.textContent = 'คัดลอก'; }, 1500);
     }
+    return;
+  }
+  if ((el = t.closest('[data-copy-ext]'))) {
+    if (navigator.clipboard) navigator.clipboard.writeText(el.dataset.copyExt);
+    el.textContent = 'คัดลอกแล้ว ✓';
+    setTimeout(function() { el.textContent = 'คัดลอกลิงก์'; }, 1500);
     return;
   }
   if (t.id === 'btn-save-journal') { saveJournal(); return; }
@@ -674,8 +790,19 @@ registerRoute('week', routeWeek);
 registerRoute('journal', routeJournal);
 registerRoute('decisions', routeDecisions);
 registerRoute('assessment', routeAssessment);
+registerRoute('reading', routeReading);
 registerRoute('templates', routeTemplates);
 registerRoute('guide', routeGuide);
 registerRoute('resources', routeResources);
+
+// เมื่อ sync bootstrap เสร็จ (อาจโหลดข้อมูลจากเซิร์ฟเวอร์มาแทน) ให้วาดใหม่ + ตามสถานะการซิงก์
+if (window.SYNC) {
+  SYNC.ready.then(function(adopted) { if (adopted) render(); });
+  var _syncNavTimer = null;
+  document.addEventListener('cm90-sync-status', function() {
+    clearTimeout(_syncNavTimer);
+    _syncNavTimer = setTimeout(function() { buildNav(parseHash()[0]); }, 400);
+  });
+}
 
 render();
