@@ -41,11 +41,14 @@ function buildNav(active) {
       h += item('#/week/' + w.n, esc(w.title), 'W' + w.n, active === 'week' && String(w.n) === (parseHash()[1] || ''), !!wd['w' + w.n]);
     });
   });
+  h += '<div class="nav-sec">บทเสริม</div>';
+  h += item('#/chapter/0', '0 · Hidden Agenda', null, active === 'chapter' && parseHash()[1] === '0');
+  h += item('#/chapter/14', '14 · จับใจความในการสื่อสาร', null, active === 'chapter' && parseHash()[1] === '14');
+  h += item('#/chapter/15', '15 · สื่อสารถูกที่ถูกเวลา', null, active === 'chapter' && parseHash()[1] === '15');
   h += '<div class="nav-sec">เครื่องมือ</div>';
   h += item('#/journal', 'Thinking Journal', null, active === 'journal');
   h += item('#/decisions', 'Decision Journal', null, active === 'decisions');
   h += item('#/assessment', 'แบบประเมิน Day 1/30/60/90', null, active === 'assessment');
-  h += item('#/reading', 'โมดูล: อ่านระหว่างบรรทัด', null, active === 'reading');
   h += item('#/templates', 'เทมเพลต T1–T14', null, active === 'templates');
   h += '<div class="nav-sec">เพิ่มเติม</div>';
   h += item('#/guide', 'คู่มือการใช้งาน', null, active === 'guide');
@@ -213,6 +216,12 @@ function routeRoadmap() {
     if (ph === 1) h += milestoneCard('Day 29–30', 'ประเมินรอบที่ 2 — เคส A2', '#/assessment');
     if (ph === 2) h += milestoneCard('Day 59–60', 'ประเมินรอบที่ 3 — เคส A3', '#/assessment');
     if (ph === 3) h += milestoneCard('Day 89–90', 'นำเสนอ Capstone + ประเมินรอบสุดท้าย (เคส A4)', '#/week/13');
+  });
+  h += '<h2>บทเสริม (เรียนคู่ได้ทุกช่วง)</h2><p class="hint">บททฤษฎี/ทักษะเสริมที่ไม่กินเวลาในตาราง 90 วัน — ทำแบบฝึกหัดได้เลย ความคืบหน้าบันทึกเหมือนบทปกติ</p>';
+  [[0, 'Hidden Agenda — จับเจตนาที่ซ่อนอยู่ในการสื่อสาร', 'คู่ Week 9–10'], [14, 'การจับใจความในการสื่อสาร — รับและส่งออก', 'คู่ทุกสัปดาห์ที่ต้องฟังทีม/รายงานผู้บริหาร'], [15, 'การสื่อสารอย่างได้ผล — ถูกช่องทาง ถูกคน ถูกเวลา ถูกที่', 'คู่ Week 11–12']].forEach(function(c) {
+    h += '<a class="week-card" href="#/chapter/' + c[0] + '"><div class="week-num">C' + c[0] + '</div>' +
+      '<div class="week-info"><div class="wc-title">บทที่ ' + c[0] + ' · ' + esc(c[1]) + '</div><div class="wc-dates">บทเสริม · ' + esc(c[2]) + '</div></div>' +
+      '<div class="week-side"><span class="chip chip-todo">บทเสริม</span></div></a>';
   });
   return { html: h, title: 'โรดแมป' };
 }
@@ -427,16 +436,30 @@ function routeTemplates() {
   return { html: h, title: 'เทมเพลต' };
 }
 
-/* ---------- route: reading-between-the-lines module ---------- */
+/* ---------- route: bonus chapters (บทที่ 0 / 14 / 15) ---------- */
+function routeChapter(args) {
+  var n = parseInt(args[0], 10);
+  var ch = (typeof window.CHAPTERS === 'object' && window.CHAPTERS) ? window.CHAPTERS[n] : null;
+  if (!ch) return { html: '<h1>ไม่พบบทเสริมนี้</h1><p><a href="#/home">กลับหน้าแรก</a></p>', title: 'ไม่พบบทเสริม' };
+  var h = '<div class="wk-head"><span class="phase-badge phase-3">บทเสริม</span>' +
+    '<h1>บทที่ ' + n + ' · ' + esc(ch.title) + '</h1>' +
+    '<p class="wk-dates">' + esc(ch.tagline || '') + '</p></div>';
+  h += ch.html();
+  var order = [0, 14, 15];
+  var i = order.indexOf(n);
+  var prev = order[i - 1], next = order[i + 1];
+  h += '<div class="pager">' +
+    (prev != null ? '<a class="pager-link" href="#/chapter/' + prev + '">← บทที่ ' + prev + '</a>' : '<a class="pager-link" href="#/roadmap">← โรดแมป</a>') +
+    (next != null ? '<a class="pager-link" href="#/chapter/' + next + '">บทที่ ' + next + ' →</a>' : '<a class="pager-link" href="#/week/13">กลับสู่บทเรียนหลัก →</a>') +
+    '</div>';
+  return { html: h, title: 'บทที่ ' + n + ' · ' + ch.title };
+}
+
+/* ---------- route: reading module (เดิม — ตอนนี้เป็น alias ของบทที่ 0) ---------- */
 function routeReading() {
-  var h = '<h1>โมดูลเสริม: อ่านระหว่างบรรทัด</h1>' +
-    '<p class="hint">บริบท ผลประโยชน์ และสิ่งที่หายไป — ตามคำแนะนำหัวข้อ 5.1 ของเอกสารรีวิว · แนะนำให้ทำหลังจบ Week 9–10 (ใช้เทมเพลต T13–T14 ประกอบ)</p>';
-  if (window.READING && window.READING.html) {
-    h += window.READING.html();
-  } else {
-    h += '<p class="hint">ยังไม่ได้โหลดเนื้อหาโมดูล (ไฟล์ content-reading.js หายไปหรือโหลดไม่สำเร็จ)</p>';
-  }
-  return { html: h, title: 'อ่านระหว่างบรรทัด' };
+  var r = routeChapter(['0']);
+  r.title = 'อ่านระหว่างบรรทัด (บทที่ 0)';
+  return r;
 }
 
 /* ---------- route: guide ---------- */
@@ -787,6 +810,7 @@ document.addEventListener('click', function(e) {
 registerRoute('home', routeHome);
 registerRoute('roadmap', routeRoadmap);
 registerRoute('week', routeWeek);
+registerRoute('chapter', routeChapter);
 registerRoute('journal', routeJournal);
 registerRoute('decisions', routeDecisions);
 registerRoute('assessment', routeAssessment);

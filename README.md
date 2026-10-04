@@ -68,6 +68,7 @@ open 90day-site/index.html    # หรือ double-click
 | Rubric ประเมิน 10 → **12 หัว (/60)** — เพิ่ม Stakeholder & interest analysis + Framing & omission detection | หัวข้อ 5.2(2) |
 | T10 Red Team card เพิ่ม 2 คำถาม + เทมเพลตใหม่ T13–T14 | หัวข้อ 5.2(1) + 5.1 |
 | **External review**: ส่งลิงก์ให้เพื่อน/หัวหน้าวิเคราะห์เคสเดียวกัน (`/review.html`) แล้วเห็นคะแนนเทียบกันบนหน้าประเมิน (ทำงานในโหมดเซิร์ฟเวอร์) | หัวข้อ 2/5.2 |
+| **บทเสริม 3 บท** (ไม่กินเวลาในตาราง 90 วัน): บทที่ 0 Hidden Agenda (Agency Theory · Grice · Berne TA · Argyris · Aristotle · Frankfurt + audit 4 ชุด) · บทที่ 14 การจับใจความ (Ladder of Inference · Active Listening · HURIER · Closed-loop/SBAR · Toulmin · SBI) · บทที่ 15 สื่อสารถูกที่ถูกเวลา (Media Richness · PMBOK comms matrix · grapevine · Kotter · Psychological Safety) — ทุกบทมี quiz + แบบฝึกหัดบันทึกได้ | คำขอเพิ่มเนื้อหา (หลักการที่ได้รับการยอมรับทั้งหมด) |
 
 ## API สรุป (ตัวอย่าง)
 

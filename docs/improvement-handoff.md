@@ -32,6 +32,7 @@
 
 > **สถานะอัปเดต 1 ต.ค. 2026:** รายการ 1–7 ถูก implement แล้ว (commit ถัดจากนี้) — ดู README หัวข้อ "ส่วนขยายที่เพิ่มตามคำแนะนำ" รายละเอียดไฟล์: เคสกลาง = `90day-site/js/content-neutral.js` · เจาะลึก = `content-deep.js` · spaced retrieval = `content-retrieval.js` · โมดูลอ่านระหว่างบรรทัด = `content-reading.js` (route `#/reading`) · rubric 12 หัว + T13–T14 + T10 คำถามใหม่ อยู่ใน `pages.js` · external feedback = `review.html` + API `/api/reviews` (โหมดเซิร์ฟเวอร์) · GitHub Pages ตั้งค่าที่ repo settings (branch `main`, root — แอปจะทำงานโหมด localStorage โดยไม่ต้องแก้โค้ด) · รายการ 8 ยังเป็น optional ตามเดิม
 > เพิ่มเติมตามโจทย์ผู้ใช้: backend sync + database (`server/`, SQLite ผ่าน `node:sqlite`) + Dockerfile + docker compose (ข้อมูลถาวรบน `./data`) — วิธีรันดู README
+> อัปเดตตามคำขอเพิ่มเนื้อหา: "โมดูลอ่านระหว่างบรรทัด" ถูกยกไปเป็น **บทที่ 0 Hidden Agenda** (รวม audit 4 ชุด — id แบบฝึกเดิม rb-* คงเดิม ข้อมูลผู้เรียนไม่หาย และ route `#/reading` ยังใช้ได้เป็น alias) พร้อมบทเสริมใหม่ บทที่ 14 (จับใจความ) และ 15 (สื่อสารถูกที่ถูกเวลา) — อยู่ที่ `#/chapter/0|14|15` ไฟล์ `content-chapters.js`
 
 | # | งาน | ต้นทาง (ในเอกสารรีวิว) | หมายเหตุเทคนิค |
 |---|---|---|---|
